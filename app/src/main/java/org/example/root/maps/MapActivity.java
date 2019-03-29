@@ -2,6 +2,7 @@ package org.example.root.maps;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -11,9 +12,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.gcm.Task;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Tasks;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -22,6 +31,20 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Toast.makeText(this, "Map is Ready", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onMapReady: map is ready");
         mMap = googleMap;
+
+        if (mLocationPermissionsGranted) {
+            getDeviceLocation();
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                return;
+            }
+            mMap.setMyLocationEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+        }
+
     }
 
     private static final String TAG = "MapActivity";
@@ -29,10 +52,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final float DEFAULT_ZOOM =15f;
+
 
     //vars
     private Boolean mLocationPermissionsGranted = false;
     private GoogleMap mMap;
+    private FusedLocationProviderClient mfusedLocationProviderClient;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,6 +66,47 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
 
         getLocationPermission();
+    }
+
+    private void getDeviceLocation(){
+        Log.d(TAG, "getDeviceLocation: getting the device current location");
+        mfusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+        try {
+
+            if (mLocationPermissionsGranted){
+                final com.google.android.gms.tasks.Task<Location> locaton = mfusedLocationProviderClient.getLastLocation();
+                locaton.addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<Location> task) {
+                        if (task.isSuccessful()){
+                            Log.d(TAG,"onComplete: found locaton");
+                            Location currentlocation = (Location) task.getResult();
+
+                            movecamera(new LatLng(currentlocation.getLatitude(),currentlocation.getLongitude()),DEFAULT_ZOOM);
+
+                        }else {
+                            Log.d(TAG,"onComplete: current locaton is null");
+                            Toast.makeText(MapActivity.this,"unable to get current location",Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+
+
+            }
+
+        }catch (SecurityException e){
+            Log.e(TAG, "getDeviceLocation: SecurityException: "+ e.getMessage());
+
+        }
+
+    }
+
+    private void movecamera(LatLng latLng, float zoom){
+        Log.d(TAG,"moveCamera: moving the camera to: lat:" + latLng.latitude + ", lng "+ latLng.longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+
     }
 
     private void initMap(){
@@ -59,6 +126,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 mLocationPermissionsGranted = true;
+                initMap();
             }else{
                 ActivityCompat.requestPermissions(this,
                         permissions,
