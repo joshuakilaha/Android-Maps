@@ -9,6 +9,51 @@
         android:layout_height="match_parent"
         android:id="@+id/map"
         tools:context=".MapsActivity"
-        android:name="com.google.android.gms.maps.SupportMapFragment" />
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+    
+    <RelativeLayout
+        android:id="@+id/relative1"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:elevation="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/white_border">
+
+
+    
+    <ImageView
+        android:id="@+id/ic_magnify"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/ic_magnify"/>
+
+        <AutoCompleteTextView
+            android:id="@+id/searchtext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/ic_magnify"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:hint="Search for Location or City"
+            android:textSize="15dp"
+            android:textColor="@color/Text"
+            android:imeOptions="actionSearch"/>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/ic_gps"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@id/relative1"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_gps"/>
 
 </RelativeLayout>

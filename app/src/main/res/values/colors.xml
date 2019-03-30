@@ -3,4 +3,12 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="SearchBar">#ffff</color>
+    <color name="Text">#000</color>
+
+    <color name="primaryDesign">#795548</color>
+    <color name="PrimarydarkDesign">#5D4037</color>
+    <color name="whiteDesign">#ffff</color>
+    <color name="darkgrayDesign">#6c6c6c</color>
+
 </resources>
